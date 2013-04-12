@@ -23,7 +23,7 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 package main
 
@@ -79,7 +79,7 @@ func main() {
 	var send, recv bool
 	skip := false
 
-	var socket zmq.Socket
+	var socket *zmq.Socket
 	switch *socket_type {
 	case "PUSH":
 		socket, _ = context.NewSocket(zmq.PUSH)
