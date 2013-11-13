@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2012, Joshua Foster
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  *     * Neither the name of the <organization> nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -30,8 +30,8 @@ package main
 import (
 	"bufio"
 	"fmt"
-	zmq "github.com/alecthomas/gozmq"
 	flag "github.com/droundy/goopt"
+	zmq "github.com/pebbe/zmq4"
 	"os"
 )
 
@@ -74,37 +74,35 @@ func main() {
 		return
 	}
 
-	context, _ := zmq.NewContext()
-
 	var send, recv bool
 	skip := false
 
 	var socket *zmq.Socket
 	switch *socket_type {
 	case "PUSH":
-		socket, _ = context.NewSocket(zmq.PUSH)
+		socket, _ = zmq.NewSocket(zmq.PUSH)
 		send = true
 	case "PULL":
-		socket, _ = context.NewSocket(zmq.PULL)
+		socket, _ = zmq.NewSocket(zmq.PULL)
 		recv = true
 	case "PUB":
-		socket, _ = context.NewSocket(zmq.PUB)
+		socket, _ = zmq.NewSocket(zmq.PUB)
 		send = true
 	case "SUB":
-		socket, _ = context.NewSocket(zmq.SUB)
+		socket, _ = zmq.NewSocket(zmq.SUB)
 		recv = true
 		if len(*subscriptions) == 0 {
-			socket.SetSockOptString(zmq.SUBSCRIBE, "")
+			socket.SetSubscribe("")
 		}
 		for _, subscription := range *subscriptions {
-			socket.SetSockOptString(zmq.SUBSCRIBE, subscription)
+			socket.SetSubscribe(subscription)
 		}
 	case "REQ":
-		socket, _ = context.NewSocket(zmq.REQ)
+		socket, _ = zmq.NewSocket(zmq.REQ)
 		send = true
 		recv = true
 	case "REP":
-		socket, _ = context.NewSocket(zmq.REP)
+		socket, _ = zmq.NewSocket(zmq.REP)
 		send = true
 		recv = true
 		skip = true
@@ -134,10 +132,10 @@ func main() {
 	for i := 0; i < *number || *number == -1; i++ {
 		if send && !skip {
 			line, _ := reader.ReadBytes(delim)
-			socket.Send([]byte(line), 0)
+			socket.SendBytes([]byte(line), 0)
 		}
 		if recv {
-			data, _ := socket.Recv(0)
+			data, _ := socket.RecvBytes(0)
 			writer.Write(data)
 			writer.Flush()
 		}
